@@ -4,6 +4,7 @@ namespace WebApi.Repositories;
 
 public interface IWarehouseRepository
 { 
-    Task<int> AddProductToWarehouseAsync(WarehouseEntryRequestDto request);
-    Task <bool> WareHouseExists(WarehouseEntryRequestDto request);
+    Task<int> AddProductToWarehouse(WarehouseEntryRequestDto request);
+    Task <bool> WarehouseExists(WarehouseEntryRequestDto request);
+    Task <bool> IsOrderCompleted(WarehouseEntryRequestDto request);
 }

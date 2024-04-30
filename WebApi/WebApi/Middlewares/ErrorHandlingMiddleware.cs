@@ -26,7 +26,7 @@ public class ErrorHandlingMiddleware
             {
                 StatusCode = apiEx.StatusCode,
                 Message = apiEx.Message
-            }.ToString());
+            }.ToString()!);
         }
         catch (Exception ex) 
         {
@@ -36,7 +36,7 @@ public class ErrorHandlingMiddleware
             {
                 StatusCode = HttpStatusCode.InternalServerError,
                 Message = "An unexpected error occurred."
-            }.ToString());
+            }.ToString()!);
         }
     }
 }

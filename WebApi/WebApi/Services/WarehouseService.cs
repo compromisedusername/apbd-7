@@ -19,22 +19,27 @@ public class WarehouseService : IWarehouseService
         _orderRepository = orderRepository;
     }
 
-    public async Task<int> AddProductToWarehouseAsync(WarehouseEntryRequestDto request)
+    public async Task<int> AddProductToWarehouse(WarehouseEntryRequestDto request)
     {
-        if (!_productRepository.ProductExists(request).Result)
+        if (!await _productRepository.ProductExists(request))
         {
-            throw new ProductNotExistsException();
+            throw  new ProductNotExistsException();
         }
-        if (!_warehouseRepository.WareHouseExists(request).Result)
+        if (!await _warehouseRepository.WarehouseExists(request))
         {
             throw new WarehouseNotExistsException();
         }
-        if (!_orderRepository.ProductAndAmountExists(request).Result | request.Amount <= 0)
+        if (!await _orderRepository.ProductAndAmountExists(request))
         {
             throw new OrderNotExistsException();
         };
-        
-        var entryId = await _warehouseRepository.AddProductToWarehouseAsync(request);
+        if (await _warehouseRepository.IsOrderCompleted(request))
+        {
+            throw new OrderAlreadyCompletedException();
+        }
+
+        await _productRepository.UpdateOrderDate(request);
+        var entryId = await _warehouseRepository.AddProductToWarehouse(request);
         return entryId;
     }
 }

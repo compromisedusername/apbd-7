@@ -5,4 +5,5 @@ namespace WebApi.Repositories;
 public interface IProductRepository
 {
     Task<bool> ProductExists(WarehouseEntryRequestDto request);
+    Task UpdateOrderDate(WarehouseEntryRequestDto request);
 }

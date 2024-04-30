@@ -21,7 +21,7 @@ public class WarehouseController : ControllerBase
     public async Task<IActionResult> AddProductToWarehouse(WarehouseEntryRequestDto request)
     {
            
-        var entryId = await _warehouseService.AddProductToWarehouseAsync(request);
+        var entryId = await _warehouseService.AddProductToWarehouse(request);
         return Ok(new WarehouseEntryResponseDto{ WarehouseEntryId = entryId});
         
     }
