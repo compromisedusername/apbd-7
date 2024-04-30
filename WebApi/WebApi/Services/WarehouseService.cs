@@ -1,4 +1,5 @@
 using WebApi.Exceptions;
+using WebApi.Models;
 using WebApi.Models.DTOs;
 using WebApi.Repositories;
 using WebApi.Repositories.Order;
@@ -29,17 +30,22 @@ public class WarehouseService : IWarehouseService
         {
             throw new WarehouseNotExistsException();
         }
-        if (!await _orderRepository.ProductAndAmountExists(request))
+
+        OrderDTO order;
+        if ( (order = await _orderRepository.AmountAndProductExists(request)) != null)
         {
             throw new OrderNotExistsException();
         };
-        if (await _warehouseRepository.IsOrderCompleted(request))
+        if (await _warehouseRepository.IsOrderCompleted(order))
         {
             throw new OrderAlreadyCompletedException();
         }
 
-        await _productRepository.UpdateOrderDate(request);
-        var entryId = await _warehouseRepository.AddProductToWarehouse(request);
+        await _orderRepository.UpdateOrderDate(order);
+        int productPrice = await _productRepository.GetPrice(order.IdProduct);
+        int entryId = await _warehouseRepository.AddProductToWarehouse(request, order, productPrice);
         return entryId;
     }
+
+  
 }

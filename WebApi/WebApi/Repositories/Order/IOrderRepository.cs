@@ -4,5 +4,7 @@ namespace WebApi.Repositories.Order;
 
 public interface IOrderRepository
 {
-    Task<bool> ProductAndAmountExists(WarehouseEntryRequestDto request);
+    Task<OrderDTO> AmountAndProductExists(WarehouseEntryRequestDto request);
+    Task UpdateOrderDate(OrderDTO orderDto);
+
 }

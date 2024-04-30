@@ -20,7 +20,7 @@ public class WarehouseEntryRequestDto
     public int Amount { get; set; }
     
     [Required(ErrorMessage = "RequestDate is required!")]
-    [DataType(DataType.Date)]
-    [DisplayFormat(ApplyFormatInEditMode = true, DataFormatString = "{0:dd/MM/yyyy}")]
+    //[DataType(DataType.Date)]
+    //[DisplayFormat(ApplyFormatInEditMode = true, DataFormatString = "{0:dd/MM/yyyy}")]
     public DateTime RequestDate { get; set; }
 }

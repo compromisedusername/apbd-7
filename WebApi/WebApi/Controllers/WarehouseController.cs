@@ -20,10 +20,19 @@ public class WarehouseController : ControllerBase
     [Route("add-product")]
     public async Task<IActionResult> AddProductToWarehouse(WarehouseEntryRequestDto request)
     {
-           
-        var entryId = await _warehouseService.AddProductToWarehouse(request);
-        return Ok(new WarehouseEntryResponseDto{ WarehouseEntryId = entryId});
-        
+        try
+        {
+            var entryId = await _warehouseService.AddProductToWarehouse(request);
+            return Ok(new WarehouseEntryResponseDto{ WarehouseEntryId = entryId});
+
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine(e.Message);
+        }
+
+        return BadRequest();
+
     }
     
     
