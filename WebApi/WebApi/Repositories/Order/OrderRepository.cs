@@ -10,7 +10,7 @@ public class OrderRepository : BaseRepository, IOrderRepository
     async public Task<OrderDTO> AmountAndProductExists(WarehouseEntryRequestDto request)
     {
         var query =
-            @"SELECT IdOrder, IdProduct, Amount, CreatedAt, FulfilledAt FROM [Order] WHERE IdProduct = @IdProduct AND Amount = @Amount AND ";
+            @"SELECT IdOrder, IdProduct, Amount, CreatedAt, FulfilledAt FROM [Order] WHERE IdProduct = @IdProduct AND Amount = @Amount AND DATEDIFF(day,@Date,CreatedAt) < 0   ";
 
         using SqlConnection connection = new SqlConnection(_configuration.GetConnectionString("Default"));
         using SqlCommand command = new SqlCommand();
