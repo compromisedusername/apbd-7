@@ -9,16 +9,17 @@ public class OrderRepository : BaseRepository, IOrderRepository
 
     async public Task<OrderDTO> AmountAndProductExists(WarehouseEntryRequestDto request)
     {
-        var query = @"SELECT IdOrder, IdProduct, Amount, CreatedAt, FulfilledAt FROM [Order] WHERE IdProduct = @IdProduct AND Amount = @Amount AND CreatedAt > @Date";
-        
+        var query =
+            @"SELECT IdOrder, IdProduct, Amount, CreatedAt, FulfilledAt FROM [Order] WHERE IdProduct = @IdProduct AND Amount = @Amount AND CreatedAt > @Date";
+
         using SqlConnection connection = new SqlConnection(_configuration.GetConnectionString("Default"));
         using SqlCommand command = new SqlCommand();
 
         command.Connection = connection;
         command.CommandText = query;
-        command.Parameters.AddWithValue("IdProduct",request.ProductId);
-        command.Parameters.AddWithValue("Amount",request.Amount);
-        command.Parameters.AddWithValue("Date",request.RequestDate);
+        command.Parameters.AddWithValue("IdProduct", request.ProductId);
+        command.Parameters.AddWithValue("Amount", request.Amount);
+        command.Parameters.AddWithValue("Date", request.RequestDate);
 
         await connection.OpenAsync();
 
@@ -26,7 +27,7 @@ public class OrderRepository : BaseRepository, IOrderRepository
 
         if (!reader.HasRows) throw new OrderNotExistsException();
 
-        int idOrderOrdinal = reader.GetOrdinal("IdOrder");
+        var idOrderOrdinal = reader.GetOrdinal("IdOrder");
         var idProductOrdinal = reader.GetOrdinal("IdProduct");
         var amount = reader.GetOrdinal("Amount");
         var createdAt = reader.GetOrdinal("CreatedAt");
@@ -34,12 +35,19 @@ public class OrderRepository : BaseRepository, IOrderRepository
 
         await reader.ReadAsync();
         var order = new OrderDTO();
-        order.Amount = reader.GetInt32(amount);
-        order.IdOrder = reader.GetInt32(idOrderOrdinal);
-        order.CreatedAt = reader.GetDateTime(createdAt);
-        order.FulfilledAt = reader.GetDateTime(fulfilledAt);
-        order.IdOrder = reader.GetInt32(idProductOrdinal);
-    
+        try
+        {
+            order.Amount = reader.GetInt32(amount);
+            order.IdOrder = reader.GetInt32(idOrderOrdinal);
+            order.CreatedAt = reader.GetDateTime(createdAt);
+            order.FulfilledAt = reader.GetDateTime(fulfilledAt);
+            order.IdProduct = reader.GetInt32(idProductOrdinal);
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine("Reader in OrderRepository error!");
+        }
+
         return order;
     }
     async public Task UpdateOrderDate(OrderDTO orderDto)

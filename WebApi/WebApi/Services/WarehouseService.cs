@@ -42,8 +42,12 @@ public class WarehouseService : IWarehouseService
         }
 
         await _orderRepository.UpdateOrderDate(order);
-        int productPrice = await _productRepository.GetPrice(order.IdProduct);
-        int entryId = await _warehouseRepository.AddProductToWarehouse(request, order, productPrice);
+        var productPrice = await _productRepository.GetPrice(order.IdProduct);
+        var entryId = await _warehouseRepository.AddProductToWarehouse(request, order, productPrice);
+        if (productPrice == -1 | entryId == -1)
+        {
+            throw new Exception("id or product price is -1!");
+        }
         return entryId;
     }
 

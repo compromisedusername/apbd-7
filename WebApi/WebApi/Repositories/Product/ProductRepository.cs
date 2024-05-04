@@ -32,8 +32,21 @@ public class ProductRepository :BaseRepository, IProductRepository
         command.CommandText = query;
         command.Parameters.AddWithValue("IdProduct", productId);
 
-        var result = await command.ExecuteScalarAsync();
-        return Convert.ToInt32(result);
+        var reader = await command.ExecuteReaderAsync();
+
+        if (!reader.HasRows) throw new Exception("No rows in GetPrice!");
+
+        try
+        {
+
+            var price = reader.GetInt32(0);
+            return price;
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine("Reader in ProductRepository error!");
+        }
+        return -1;
 
     }
 

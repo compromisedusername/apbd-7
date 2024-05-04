@@ -1,4 +1,5 @@
 using System.Net;
+using System.Text.Json;
 using WebApi.Exceptions;
 
 namespace WebApi.Middlewares;
@@ -22,11 +23,13 @@ public class ErrorHandlingMiddleware
         {
             context.Response.ContentType = "application/json";
             context.Response.StatusCode = (int)apiEx.StatusCode;
-            await context.Response.WriteAsync(new
+            
+            var errorResponse = JsonSerializer.Serialize(new
             {
-                StatusCode = apiEx.StatusCode,
-                Message = apiEx.Message
-            }.ToString()!);
+                apiEx.StatusCode,
+                apiEx.Message
+            });
+            await context.Response.WriteAsync(errorResponse);
         }
         catch (Exception ex) 
         {
