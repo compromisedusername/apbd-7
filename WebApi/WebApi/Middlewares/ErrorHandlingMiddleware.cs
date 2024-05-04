@@ -29,7 +29,7 @@ public class ErrorHandlingMiddleware
                 apiEx.StatusCode,
                 apiEx.Message
             });
-            await context.Response.WriteAsync(errorResponse + " (middleware)");
+            await context.Response.WriteAsync(errorResponse);
         }
         catch (Exception ex) 
         {

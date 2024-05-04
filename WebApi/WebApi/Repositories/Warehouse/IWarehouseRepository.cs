@@ -10,4 +10,6 @@ public interface IWarehouseRepository
     Task <bool> IsOrderCompleted(OrderDTO orderDto);
     Task<ICollection<WarehouseDTO>> GetProductsFromWarehouse();
     Task<int> DeleteProductsFromWarehouse();
+    Task<int> AddProductToWarehouseProcedure(WarehouseEntryRequestDto request);
+
 }

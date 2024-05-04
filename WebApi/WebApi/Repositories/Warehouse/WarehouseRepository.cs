@@ -1,4 +1,6 @@
+using System.Data.Common;
 using Microsoft.Data.SqlClient;
+using WebApi.Exceptions;
 using WebApi.Models.DTOs;
 
 namespace WebApi.Repositories;
@@ -40,8 +42,57 @@ public class WarehouseRepository : BaseRepository,  IWarehouseRepository
 
     }
 
+    async public Task<int> AddProductToWarehouseProcedure(WarehouseEntryRequestDto request)
+    {
+        var queryFindIdOrder = @"SELECT TOP 1 o.IdOrder FROM [Order] o
+                        JOIN Product_Warehouse pw ON o.IdOrder = pw.IdOrder WHERE o.IdProduct = @IdProduct AND o.Amount = @Amount AND DATEDIFF(day,@Date,CreatedAt) <= 0  ";
+        var queryIsProductInDb = @"SELECT 1 FROM Product WHERE IdProduct = @IdProduct";
 
-   
+        await using SqlConnection connection = new SqlConnection(_configuration.GetConnectionString("Default"));
+        await using SqlCommand command = new SqlCommand();
+
+        command.Connection = connection;
+
+        await connection.OpenAsync();
+
+
+        DbTransaction transaction = await connection.BeginTransactionAsync();
+        command.Transaction = (SqlTransaction)transaction;
+
+        string errorMessage = "";
+        try
+        {
+
+            //Exec of 1st command
+            command.Parameters.Clear();
+            command.CommandText = queryFindIdOrder;
+            command.Parameters.AddWithValue("IdProduct", request.ProductId);
+            command.Parameters.AddWithValue("Date", request.RequestDate);
+            command.Parameters.AddWithValue("Amount", request.Amount);
+            var idOrder = await command.ExecuteScalarAsync();
+            if ( idOrder is null) throw new OrderNotExistsException();
+            //Exec of 2nd command
+            command.Parameters.Clear();
+            command.CommandText = queryIsProductInDb;
+            command.Parameters.AddWithValue("IdProduct", request.ProductId);
+            if (await command.ExecuteScalarAsync() is null) throw new ProductNotExistsException();
+            //Exec of 3rd command
+            
+            //Exec of 4th command
+
+        }
+        catch (Exception e)
+        {
+            await transaction.RollbackAsync();
+            throw;
+        }
+
+        throw new BadHttpRequestException("Transaction failed! (" + errorMessage +")");
+    }
+
+
+
+
 
     async public Task<bool> WarehouseExists(WarehouseEntryRequestDto request)
     {

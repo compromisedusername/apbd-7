@@ -25,7 +25,7 @@ public class WarehouseService : IWarehouseService
     {
         if (!await _productRepository.ProductExists(request))
         {
-            throw  new ProductNotExistsException();
+            throw new ProductNotExistsException();
         }
         if (!await _warehouseRepository.WarehouseExists(request))
         {
@@ -58,4 +58,6 @@ public class WarehouseService : IWarehouseService
     {
         return await _warehouseRepository.DeleteProductsFromWarehouse();
     }
+
+   
 }

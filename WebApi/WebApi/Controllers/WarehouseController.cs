@@ -33,6 +33,21 @@ public class WarehouseController : ControllerBase
         }
     }
 
+    [HttpPost]
+    [Route("add-product-procedure")]
+    public async Task<IActionResult> AddProdcutToWarehouseProcedure(WarehouseEntryRequestDto request)
+    {
+        try
+        {
+            return Ok(await _warehouseService.DeleteProductsFromWarehouse());
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine(e.Message);
+            return BadRequest(e.Message);
+        }
+    }
+    
     /*[HttpGet]
     [Route("get-products")]
     public async Task<IActionResult> GetProductsFromWarehouse()
