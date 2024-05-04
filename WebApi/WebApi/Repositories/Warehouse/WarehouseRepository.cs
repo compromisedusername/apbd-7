@@ -7,16 +7,16 @@ public class WarehouseRepository : BaseRepository,  IWarehouseRepository
 {
     
 
-    public async Task<int> AddProductToWarehouse(WarehouseEntryRequestDto request, OrderDTO orderDto, int price)
+    public async Task<int> AddProductToWarehouse(WarehouseEntryRequestDto request, OrderDTO orderDto, decimal price)
     {
         await using SqlConnection connection = new SqlConnection(_configuration.GetConnectionString("Default"));
         await connection.OpenAsync();
-        string query = "INSERT INTO Product_Warehouse (IdWarehouse, IdProduct, IdOrder, Amount, Price, CreatedAt) VALUES (@IdWarehouse,@IdProduct,@IdOrder,@Amount,@Price,GETDATE());";
-        string id = @"SELECT SCOPE_IDENTITY() AS LastInsertedProductId;";
-
         
+        string query = "INSERT INTO Product_Warehouse (IdWarehouse, IdProduct, IdOrder, Amount, Price, CreatedAt)" +
+                       " VALUES (@IdWarehouse,@IdProduct,@IdOrder,@Amount,@Price,GETDATE());" +
+                       "SELECT SCOPE_IDENTITY();";
         await using SqlCommand command = new SqlCommand(query,connection);
-        await using SqlCommand idCommand = new SqlCommand(id,connection);
+       
 
         command.Parameters.AddWithValue("IdWarehouse",request.WarehouseId);
         command.Parameters.AddWithValue("IdProduct",request.ProductId);
@@ -24,26 +24,20 @@ public class WarehouseRepository : BaseRepository,  IWarehouseRepository
         command.Parameters.AddWithValue("Amount",request.Amount);
         command.Parameters.AddWithValue("Price",(request.Amount * price));
 
-        await command.ExecuteNonQueryAsync();
-        command.CommandText = id;
+        var res = await command.ExecuteScalarAsync();
+
         
-        var reader = await command.ExecuteReaderAsync();
-        if (!reader.HasRows)
+        
+        if (res != null)
         {
-            throw new Exception("No product added!");
+            return Convert.ToInt32((decimal)res); 
         }
-        await reader.ReadAsync();
-        try
+        else
         {
-            var idInserted = Convert.ToInt32(reader[0]);
-            return idInserted;
-        }
-        catch (Exception e)
-        {
-            Console.WriteLine("Reader in Waraehouse Repository error!");
+            throw new Exception("No data was inserted! Error in WarehouseRepository!.");
         }
 
-        return -1;
+
     }
 
 
@@ -52,8 +46,8 @@ public class WarehouseRepository : BaseRepository,  IWarehouseRepository
     async public Task<bool> WarehouseExists(WarehouseEntryRequestDto request)
     {
         var query = @"SELECT 1 FROM Warehouse WHERE IdWarehouse = @IdWarehouse ";
-        using SqlConnection connection = new SqlConnection(_configuration.GetConnectionString("Default"));
-        using SqlCommand command = new SqlCommand();
+        await using SqlConnection connection = new SqlConnection(_configuration.GetConnectionString("Default"));
+        await using SqlCommand command = new SqlCommand();
 
         command.Connection = connection;
         command.CommandText = query;
@@ -68,8 +62,8 @@ public class WarehouseRepository : BaseRepository,  IWarehouseRepository
     async public Task<bool> IsOrderCompleted(OrderDTO orderDto)
     {
         var query = @"SELECT 1 FROM Product_Warehouse WHERE IdOrder = @IdOrder";
-        using SqlConnection connection = new SqlConnection(_configuration.GetConnectionString("Default"));
-        using SqlCommand command = new SqlCommand();
+        await using SqlConnection connection = new SqlConnection(_configuration.GetConnectionString("Default"));
+        await using SqlCommand command = new SqlCommand();
 
         command.Connection = connection;
         command.CommandText = query;
@@ -80,8 +74,26 @@ public class WarehouseRepository : BaseRepository,  IWarehouseRepository
         return res is not null;
     }
 
+    async public Task<ICollection<WarehouseDTO>> GetProductsFromWarehouse()
+    {
+        throw new NotImplementedException();
+    }
 
-    public WarehouseRepository(IConfiguration configuration) : base(configuration)
+    public async Task<int> DeleteProductsFromWarehouse()
+    {
+        var query = @"DELETE FROM Product_Warehouse WHERE 1 = 1";
+        await using SqlConnection connection = new SqlConnection(_configuration.GetConnectionString("Default"));
+        await using SqlCommand command = new SqlCommand();
+
+        command.Connection = connection;
+        command.CommandText = query;
+        
+        await connection.OpenAsync();
+        return await command.ExecuteNonQueryAsync();
+    }
+
+
+    public  WarehouseRepository(IConfiguration configuration) : base(configuration)
     {
     }
 }

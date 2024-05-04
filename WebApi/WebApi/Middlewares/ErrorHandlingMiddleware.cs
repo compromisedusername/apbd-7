@@ -29,7 +29,7 @@ public class ErrorHandlingMiddleware
                 apiEx.StatusCode,
                 apiEx.Message
             });
-            await context.Response.WriteAsync(errorResponse);
+            await context.Response.WriteAsync(errorResponse + " (middleware)");
         }
         catch (Exception ex) 
         {
@@ -38,7 +38,7 @@ public class ErrorHandlingMiddleware
             await context.Response.WriteAsync(new
             {
                 StatusCode = HttpStatusCode.InternalServerError,
-                Message = "An unexpected error occurred."
+                Message = "An unexpected error occurred. (middleware)"
             }.ToString()!);
         }
     }

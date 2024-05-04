@@ -22,10 +22,12 @@ public class ProductRepository :BaseRepository, IProductRepository
         return res is not null;
     }
 
-    async public Task<int> GetPrice(int productId)
+    async public Task<decimal> GetPrice(int productId)
     {
         var query = @"SELECT Price FROM Product WHERE IdProduct = @IdProduct";
         await using SqlConnection connection = new SqlConnection(_configuration.GetConnectionString("Default"));
+        await connection.OpenAsync();
+
         await using SqlCommand command = new SqlCommand();
 
         command.Connection = connection;
@@ -36,18 +38,18 @@ public class ProductRepository :BaseRepository, IProductRepository
 
         if (!reader.HasRows) throw new Exception("No rows in GetPrice!");
 
-        try
-        {
+        await reader.ReadAsync();
 
-            var price = reader.GetInt32(0);
-            return price;
-        }
-        catch (Exception e)
-        {
-            Console.WriteLine("Reader in ProductRepository error!");
-        }
-        return -1;
-
+        
+        var price = reader.GetDecimal(0);
+        return price;
+        
+        
+        /*
+         var price = await command.ExecuteScalarAsync();
+        return  Convert.ToDecimal(price);
+        */
+        
     }
 
 

@@ -5,7 +5,7 @@ using WebApi.Services;
 
 namespace WebApi.Controllers;
 
-[Route("api/[controller]")]
+[Route("api/warehouse")]
 [ApiController]
 public class WarehouseController : ControllerBase
 {
@@ -31,6 +31,21 @@ public class WarehouseController : ControllerBase
             Console.WriteLine(e.Message);
             return BadRequest(e.Message);
         }
+    }
+
+    /*[HttpGet]
+    [Route("get-products")]
+    public async Task<IActionResult> GetProductsFromWarehouse()
+    {
+        throw new NotImplementedException();
+
+    }*/
+    
+    [HttpDelete]
+    [Route("delete-products")]
+    public async Task<IActionResult> DeleteProductsFromWarehouse()
+    {
+        return Ok("Dropped rows:  "+ await _warehouseService.DeleteProductsFromWarehouse());
     }
     
     

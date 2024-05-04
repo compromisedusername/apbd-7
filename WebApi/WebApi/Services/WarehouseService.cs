@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using WebApi.Exceptions;
 using WebApi.Models;
 using WebApi.Models.DTOs;
@@ -31,8 +32,9 @@ public class WarehouseService : IWarehouseService
             throw new WarehouseNotExistsException();
         }
 
-        OrderDTO order;
-        if ( (order = await _orderRepository.AmountAndProductExists(request)) != null)
+        OrderDTO order = await _orderRepository.AmountAndProductExists(request);
+        
+        if ( order == null)
         {
             throw new OrderNotExistsException();
         };
@@ -44,12 +46,16 @@ public class WarehouseService : IWarehouseService
         await _orderRepository.UpdateOrderDate(order);
         var productPrice = await _productRepository.GetPrice(order.IdProduct);
         var entryId = await _warehouseRepository.AddProductToWarehouse(request, order, productPrice);
-        if (productPrice == -1 | entryId == -1)
-        {
-            throw new Exception("id or product price is -1!");
-        }
         return entryId;
     }
 
-  
+    public async Task<ICollection<WarehouseDTO>> GetProductsFromWarehouse()
+    {
+        throw new NotImplementedException();
+    }
+
+    public async Task<int> DeleteProductsFromWarehouse()
+    {
+        return await _warehouseRepository.DeleteProductsFromWarehouse();
+    }
 }

@@ -5,7 +5,9 @@ namespace WebApi.Repositories;
 public interface IWarehouseRepository
 { 
     Task<int> AddProductToWarehouse(WarehouseEntryRequestDto request, OrderDTO orderDto,
-        int price);
+        decimal price);
     Task <bool> WarehouseExists(WarehouseEntryRequestDto request);
     Task <bool> IsOrderCompleted(OrderDTO orderDto);
+    Task<ICollection<WarehouseDTO>> GetProductsFromWarehouse();
+    Task<int> DeleteProductsFromWarehouse();
 }

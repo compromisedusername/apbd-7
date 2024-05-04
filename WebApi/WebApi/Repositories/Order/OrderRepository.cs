@@ -10,7 +10,7 @@ public class OrderRepository : BaseRepository, IOrderRepository
     async public Task<OrderDTO> AmountAndProductExists(WarehouseEntryRequestDto request)
     {
         var query =
-            @"SELECT IdOrder, IdProduct, Amount, CreatedAt, FulfilledAt FROM [Order] WHERE IdProduct = @IdProduct AND Amount = @Amount AND CreatedAt > @Date";
+            @"SELECT IdOrder, IdProduct, Amount, CreatedAt, FulfilledAt FROM [Order] WHERE IdProduct = @IdProduct AND Amount = @Amount AND ";
 
         using SqlConnection connection = new SqlConnection(_configuration.GetConnectionString("Default"));
         using SqlCommand command = new SqlCommand();
@@ -24,9 +24,11 @@ public class OrderRepository : BaseRepository, IOrderRepository
         await connection.OpenAsync();
 
         var reader = await command.ExecuteReaderAsync();
-
-        if (!reader.HasRows) throw new OrderNotExistsException();
-
+        if (!reader.HasRows)
+        {
+            throw new OrderNotExistsException();
+        }
+        
         var idOrderOrdinal = reader.GetOrdinal("IdOrder");
         var idProductOrdinal = reader.GetOrdinal("IdProduct");
         var amount = reader.GetOrdinal("Amount");
@@ -55,7 +57,7 @@ public class OrderRepository : BaseRepository, IOrderRepository
         await using SqlConnection connection = new SqlConnection(_configuration.GetConnectionString("Default"));
         await connection.OpenAsync();
 
-        SqlCommand command = new SqlCommand();
+        var command = new SqlCommand();
         command.Connection = connection;
 
         command.CommandText = @"UPDATE [Order] SET FulfilledAt = GETDATE() WHERE IdOrder = @IdOrder";
